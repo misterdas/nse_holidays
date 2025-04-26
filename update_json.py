@@ -1,15 +1,26 @@
 import requests
 import json
+import random
 
 # This function fetches the trading holidays data from NSE API
-def fetch_nse_holidays(url: str = "https://www.nseindia.com/api/holiday-master?type=trading") -> None:
+def fetch_nse_holidays(url: str = "https://www.nseindia.com/api/holiday-master?type=trading"):
     try:
-        # Set the user-agent for the request to mimic a real browser
-        user_agent_response = requests.get(
+        # Fetch a random user agent from your JSON file
+        user_agents_response = requests.get(
             "https://misterdas.github.io/risk_free_interest_rate/user_agents.json"
         )
-        user_agent = user_agent_response.json()[-2]
-
+        
+        if user_agents_response.status_code != 200:
+            print(f"Failed to fetch user agents: {user_agents_response.status_code}")
+            # Fallback to a default user agent
+            user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        else:
+            # Get a random user agent from the list
+            user_agents = user_agents_response.json()
+            user_agent = random.choice(user_agents)
+            
+        print(f"Using user agent: {user_agent}")
+        
         headers = {
             "user-agent": user_agent,
             "accept": "application/json",
