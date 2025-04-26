@@ -2,8 +2,11 @@ name: Daily NSE Holidays Update
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Every day at 2 AM UTC
-  workflow_dispatch:      # Optional manual trigger
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write  # 👈 Needed for pushing changes
 
 jobs:
   update-json:
@@ -30,5 +33,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add nse_holidays.json
-          git commit -m "Auto-update NSE holidays"
+          git commit -m "Auto-update NSE holidays: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S IST')" || echo "No changes to commit"
           git push
