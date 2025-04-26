@@ -40,5 +40,5 @@ jobs:
         git config --global user.email "misterdas@users.noreply.github.com"
         git add nse_holidays.json
         git status  # Double-check before committing
-        git commit -m "Auto-update NSE holidays: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S IST')" || echo "No changes to commit"
+        git commit --all -m "Auto-update NSE holidays: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S IST')" || echo "No changes to commit"
         git push
