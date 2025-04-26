@@ -1,37 +1,40 @@
-name: Daily NSE Holidays Update
+name: Update NSE Holidays
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   schedule:
-    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+    - cron: '30 18 * * *'  # ⏰ 12:00 AM IST every day
   workflow_dispatch:
 
-permissions:
-  contents: write  # 👈 Needed for pushing changes
-
 jobs:
-  update-json:
+  build:
     runs-on: ubuntu-latest
+    env:
+      CI_COMMIT_AUTHOR: misterdas
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.x'
+    - uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
 
-      - name: Install dependencies
-        run: pip install requests
+    - run: python --version
+    - run: pip install requests
 
-      - name: Fetch and update JSON
-        run: |
-          python update_json.py
+    - name: Run update script
+      run: python update_json.py
 
-      - name: Commit and push changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add nse_holidays.json
-          git commit -m "Auto-update NSE holidays: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S IST')" || echo "No changes to commit"
-          git push
+    - name: GIT Commit updated nse_holidays.json
+      if: contains(fromJson('["schedule", "push", "pull_request"]'), github.event_name)
+      run: |
+        git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+        git config --global user.email "misterdas@users.noreply.github.com"
+        git add nse_holidays.json
+        git commit -m "Auto-update NSE holidays: $(TZ='Asia/Kolkata' date '+%Y-%m-%d %H:%M:%S IST')" || echo "No changes to commit"
+        git push
